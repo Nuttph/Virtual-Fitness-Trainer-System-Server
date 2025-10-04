@@ -1,8 +1,7 @@
-# auth.py
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,timezone
 import os
 from dotenv import load_dotenv
 
@@ -18,7 +17,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
 # ฟังก์ชันสร้าง access token
 def create_access_token(user_id: str):
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     payload = {
         "sub": user_id,
         "exp": int(expire.timestamp())
@@ -30,17 +29,16 @@ def create_access_token(user_id: str):
 # ฟังก์ชันตรวจสอบ token (ใช้ Depends ใน route)
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
-        print("Received token:", token)
+        # print("Received token:", token)
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGO])
-        print("Decoded payload:", payload)
-
+        # print("Decoded payload:", payload)
         user_id = payload.get("sub")
         exp = payload.get("exp")
-        print("Current UTC timestamp:", datetime.utcnow().timestamp())
+        # print("Current UTC timestamp:", datetime.utcnow().timestamp())
 
         if user_id is None:
             raise HTTPException(status_code=401, detail="User ID missing in token")
-        if exp < datetime.utcnow().timestamp():
+        if exp < datetime.now(timezone.utc).timestamp():
             raise HTTPException(status_code=401, detail="Token expired")
 
     except JWTError as e:
