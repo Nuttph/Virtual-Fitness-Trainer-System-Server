@@ -1,6 +1,6 @@
 from fastapi import APIRouter,HTTPException, Form,Depends
 from database import get_connection
-from schemas.users import UserRegister
+from schemas.users import UserRegister,UserEdit
 # import hashlib
 import bcrypt
 from jose import jwt
@@ -126,4 +126,33 @@ async def profile_user(current_user: dict = Depends(get_current_user)):
         "gender":gender,
         "weight":data[5],
         "height":data[6]
+    }
+
+@router.post('/edit')
+async def edit_profile(newData:UserEdit,current_user:dict = Depends(get_current_user)):
+    print(current_user['user_id'])
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT password from Users where user_id = ?",current_user['user_id'])
+    password = cursor.fetchone()
+    print(password[0])
+    print(newData.password.encode())
+    checkPassword = bcrypt.checkpw(newData.password.encode(),password[0].encode())
+    print(f'check password {checkPassword}')
+    if(not checkPassword):
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    cursor.execute("""
+                    UPDATE Users
+                    SET firstname = ? ,lastname = ? ,birthdate = ?, weight = ?, height = ?, gender = ?
+                    where user_id = ? ;
+                    """,newData.firstname,newData.lastname,newData.brithdate,newData.weight,newData.height,newData.gender,current_user['user_id'])
+    cursor.commit()
+    cursor.close()
+    conn.close()
+
+    return {
+        "message":"update sucess"
     }

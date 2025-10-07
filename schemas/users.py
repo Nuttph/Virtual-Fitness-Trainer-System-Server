@@ -11,3 +11,12 @@ class UserRegister(BaseModel):
     weight: float
     height: float
     gender: int
+
+class UserEdit(BaseModel):
+    password:str
+    firstname:str
+    lastname:str
+    brithdate:date
+    weight: float
+    height: float
+    gender: int

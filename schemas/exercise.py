@@ -7,3 +7,4 @@ class ExerciseRelation(BaseModel):
     duration: int
     leftCount: int
     rightCount: int
+    weight:int

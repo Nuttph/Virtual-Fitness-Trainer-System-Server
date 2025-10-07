@@ -16,11 +16,12 @@ async def history(current_user:dict = Depends(get_current_user)):
 	SUM(e.sets) as sets,
 	e.reps_per_set,
 	SUM(e.duration) as duration,
-	CAST(e.created_at AS DATE) as date
+	CAST(e.created_at AS DATE) as date,
+    e.weight
 from Exercises as e
 left join ExerciseMoves as em on e.move_id = em.move_id
 where e.user_id = ?
-group by e.move_id,em.move_name, CAST(e.created_at AS DATE),e.reps_per_set,e.created_at
+group by e.move_id,em.move_name, CAST(e.created_at AS DATE),e.reps_per_set,e.created_at,e.weight
 order by
 	e.created_at DESC
 """,current_user['user_id'])
@@ -36,7 +37,8 @@ order by
             'sets':row[3],
             'reps':row[4],
             'duration':row[5],
-            'date':row[6]
+            'date':row[6],
+            'weight':row[7]
         })
     return result
 
@@ -67,7 +69,7 @@ async def dashboard(current_users:dict = Depends(get_current_user)):
 async def exercise_save(move_data: ExerciseRelation ,current_users:dict = Depends(get_current_user)):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute(" EXEC sp_add_exercise ?, ?, ?, ?, ?, ?, ?; ",
+    cursor.execute(" EXEC sp_add_exercise ?, ?, ?, ?, ?, ?, ?,?; ",
                    (
                        current_users['user_id'],
                        move_data.move_id,
@@ -75,7 +77,8 @@ async def exercise_save(move_data: ExerciseRelation ,current_users:dict = Depend
                        move_data.reps_per_set,
                        move_data.duration,
                        move_data.leftCount,
-                       move_data.rightCount
+                       move_data.rightCount,
+                       move_data.weight,
                     ))
     cursor.commit()
     return {
