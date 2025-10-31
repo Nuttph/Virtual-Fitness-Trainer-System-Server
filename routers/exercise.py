@@ -88,7 +88,7 @@ async def exercise_save(move_data: ExerciseRelation ,current_users:dict = Depend
                        move_data.leftCount,
                        move_data.rightCount,
                        move_data.weight,
-                    ))
+                    ))  
         cursor.commit()
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -122,13 +122,13 @@ async def exercise_save(move_data: ExerciseRelationUpdate ,current_users:dict = 
     }
 
 @router.delete("/move-save")
-async def exercise_save(move_data: ExerciseRelationUpdate ,current_users:dict = Depends(get_current_user)):
+async def exercise_save(exer_id:int ,current_users:dict = Depends(get_current_user)):
     conn = get_connection()
     cursor = conn.cursor()
     try:
         cursor.execute(" EXEC sp_delete_exercise ?,?; ",
                    (
-                       move_data.exer_id,
+                       exer_id,
                        current_users['user_id'],
                     ))
         cursor.commit()

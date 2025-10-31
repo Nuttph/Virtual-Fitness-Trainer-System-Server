@@ -11,7 +11,3 @@ class ExerciseRelation(BaseModel):
 
 class ExerciseRelationUpdate(ExerciseRelation):
     exer_id: int
-
-class ExerciseRelationDelete(BaseModel):
-    exer_id: int
-    user_id: int
