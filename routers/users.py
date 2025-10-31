@@ -104,28 +104,19 @@ async def register_user(user: UserRegister):
 async def profile_user(current_user: dict = Depends(get_current_user)):
     conn = get_connection();
     cursor = conn.cursor();
-    cursor.execute("""
-        select 
-            u.firstname,u.lastname,u.email,u.birthdate,u.gender,u.weight,u.height
-        from users as u
-        where u.user_id = ?
-""",(current_user['user_id']))
+    cursor.execute("EXEC sp_get_user_info ?",(current_user['user_id']))
     data = cursor.fetchone();
-    # print(f'current_user = {data}')
-    gender = "None"
-    if(int(data[4]) == 1):
-        gender = "Man"
-    elif(int(data[4]) == 2):
-        gender = "Woman"
 
     return {
         "firstname":data[0],
         "lastname":data[1],
         "email":data[2],
         "dob":data[3],
-        "gender":gender,
+        "gender":data[4],
         "weight":data[5],
-        "height":data[6]
+        "height":data[6],
+        "bmi":data[7],
+        "bmr":data[8]
     }
 
 @router.post('/edit')

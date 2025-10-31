@@ -20,3 +20,4 @@ class UserEdit(BaseModel):
     weight: float
     height: float
     gender: int
+
