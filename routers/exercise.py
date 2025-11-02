@@ -38,14 +38,15 @@ async def history(current_user:dict = Depends(get_current_user)):
         result.append({
             'exer_id':row[0],
             'user_id':row[1],
-            'move_name':row[2],
-            'sets':row[3],
-            'reps':row[4],
-            'duration':row[5],
-            'date':row[6],
-            'leftarm':row[7],
-            'rightarm':row[8],
-            'weight':row[9]
+            'move_id':row[2],
+            'move_name':row[3],
+            'sets':row[4],
+            'reps':row[5],
+            'duration':row[6],
+            'date':row[7],
+            'leftarm':row[8],
+            'rightarm':row[9],
+            'weight':row[10]
         })
     return result
 
